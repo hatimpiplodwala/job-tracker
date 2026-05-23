@@ -5,11 +5,12 @@ import { StatsSidebar } from "@/components/stats-sidebar";
 import { ApplicationsTable } from "@/components/applications-table";
 import { ApplicationFormDialog } from "@/components/application-form-dialog";
 import { KanbanBoard } from "@/components/kanban-board";
+import { AnalyticsView } from "@/components/analytics-view";
 import { api } from "@/lib/api";
 import { downloadCsv } from "@/lib/csv";
 import type { Application } from "@/lib/types";
 
-type View = "table" | "kanban";
+type View = "table" | "kanban" | "analytics";
 
 interface DashboardViewProps {
   email: string;
@@ -101,18 +102,22 @@ export function DashboardView({ email }: DashboardViewProps) {
 
           <ViewTabs view={view} onChange={setView} />
 
-          {view === "table" ? (
+          {view === "table" && (
             <ApplicationsTable
               applications={applications}
               loading={loading}
               onEdit={setEditing}
             />
-          ) : (
+          )}
+          {view === "kanban" && (
             <KanbanBoard
               applications={applications}
               onEdit={setEditing}
               onSaved={handleSaved}
             />
+          )}
+          {view === "analytics" && (
+            <AnalyticsView applications={applications} />
           )}
         </div>
       </main>
@@ -148,7 +153,7 @@ function ViewTabs({
       aria-label="Application view"
       className="mb-4 inline-flex rounded-md border border-border-subtle bg-bg-elevated p-1"
     >
-      {(["table", "kanban"] as const).map((v) => (
+      {(["table", "kanban", "analytics"] as const).map((v) => (
         <button
           key={v}
           role="tab"
