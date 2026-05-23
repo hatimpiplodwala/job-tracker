@@ -9,14 +9,28 @@
 
   html,
   body {
-    background-color: #0e1117;
+    background-color: #06080c;
     color: #e6edf3;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Faint ambient brand glow at top-left of the viewport — gives the
+     page a "lit" feel without putting any element in focus. */
   body {
     font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+    background-image:
+      radial-gradient(
+        900px 500px at 0% 0%,
+        rgba(139, 92, 246, 0.06),
+        transparent 60%
+      ),
+      radial-gradient(
+        700px 400px at 100% 100%,
+        rgba(124, 58, 237, 0.04),
+        transparent 60%
+      );
+    background-attachment: fixed;
   }
 
   *:focus-visible {
@@ -31,32 +45,47 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #0e1117;
+    background: #06080c;
   }
 
   ::-webkit-scrollbar-thumb {
     background: #30363d;
     border-radius: 5px;
+    border: 2px solid #06080c;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #3d444d;
+    background: #4b525c;
   }
 
   /* Subtle selection color tied to brand */
   ::selection {
-    background-color: rgba(139, 92, 246, 0.3);
-    color: #e6edf3;
+    background-color: rgba(139, 92, 246, 0.35);
+    color: #ffffff;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-gloss-brand px-4 py-2 text-sm font-medium text-white shadow-btn-primary transition-all hover:bg-gloss-brand-hover hover:shadow-btn-primary-hover active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-md bg-gloss-brand px-4 py-2 text-sm font-medium text-white shadow-btn-primary transition-all hover:bg-gloss-brand-hover hover:shadow-btn-primary-hover active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+  }
+
+  /* Sheen line that catches light at the top of primary buttons. */
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0) 45%
+    );
+    pointer-events: none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border-subtle bg-gloss-surface px-4 py-2 text-sm font-medium text-text-primary shadow-inner-highlight transition-all hover:border-border hover:bg-gloss-elevated active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-md border border-border-subtle bg-gloss-surface px-4 py-2 text-sm font-medium text-text-primary shadow-card transition-all hover:border-border hover:bg-gloss-elevated hover:shadow-card-hover active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
   }
 
   .btn-ghost {
@@ -68,13 +97,14 @@
   }
 
   .input-base {
-    @apply w-full rounded-md border border-border-subtle bg-bg-base px-3 py-2 text-base text-text-primary shadow-inner-deep placeholder:text-text-muted transition-colors hover:border-border focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:text-sm;
+    @apply w-full rounded-md border border-border-subtle bg-bg-deep px-3 py-2 text-base text-text-primary shadow-inner-deep placeholder:text-text-muted transition-colors hover:border-border focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:text-sm;
   }
 
   .card {
     @apply relative rounded-lg border border-border-subtle bg-gloss-surface shadow-card;
   }
 
+  /* Top edge highlight — catches light like a polished surface. */
   .card::before {
     content: "";
     position: absolute;
@@ -85,16 +115,28 @@
     background: linear-gradient(
       to right,
       transparent 0%,
-      rgba(255, 255, 255, 0.07) 50%,
+      rgba(255, 255, 255, 0.12) 50%,
       transparent 100%
     );
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
     pointer-events: none;
+    z-index: 1;
   }
 
   .card-interactive {
     @apply relative rounded-lg border border-border-subtle bg-gloss-surface shadow-card transition-all hover:border-border hover:shadow-card-hover;
+  }
+
+  /* Small section divider — gradient hairline. */
+  .divider-gradient {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      transparent 100%
+    );
   }
 
   /* Small uppercase label used above sections and stat blocks */

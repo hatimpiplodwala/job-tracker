@@ -17,10 +17,6 @@ export default function ResetPasswordPage() {
   const [ready, setReady] = useState(false);
   const [invalidLink, setInvalidLink] = useState(false);
 
-  // Supabase puts the recovery token in the URL hash and exchanges it for
-  // a session via onAuthStateChange (event: "PASSWORD_RECOVERY"). We wait
-  // for either that event or an existing session before letting the user
-  // submit, so updateUser() has something to act on.
   useEffect(() => {
     const supabase = createClient();
     let cancelled = false;

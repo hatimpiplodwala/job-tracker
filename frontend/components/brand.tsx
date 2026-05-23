@@ -42,9 +42,14 @@ const ICON_SIZES = {
 export function BrandMark({ size = "sm" }: BrandMarkProps) {
   return (
     <div
-      className={`flex items-center justify-center rounded-md bg-brand-600 text-white ${BOX_SIZES[size]}`}
+      className={`relative flex items-center justify-center overflow-hidden rounded-md bg-gloss-brand text-white shadow-brand-mark ${BOX_SIZES[size]}`}
     >
-      <ChecklistIcon className={ICON_SIZES[size]} />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/25 to-transparent"
+        style={{ height: "50%" }}
+      />
+      <ChecklistIcon className={`relative ${ICON_SIZES[size]}`} />
     </div>
   );
 }

@@ -163,7 +163,7 @@ function ViewTabs({
     <div
       role="tablist"
       aria-label="Application view"
-      className="mb-4 inline-flex rounded-md border border-border-subtle bg-bg-elevated p-1"
+      className="mb-4 inline-flex rounded-md border border-border-subtle bg-bg-deep p-1 shadow-inner-deep"
     >
       {(["table", "kanban", "analytics"] as const).map((v) => {
         const Icon = VIEW_META[v].icon;
@@ -174,9 +174,9 @@ function ViewTabs({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(v)}
-            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-all ${
               active
-                ? "bg-brand-600 text-white shadow-sm"
+                ? "bg-gloss-tab-active text-white shadow-tab-active"
                 : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
             }`}
           >

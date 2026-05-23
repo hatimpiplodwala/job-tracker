@@ -97,18 +97,20 @@ export function StatsSidebar({ email, applications }: StatsSidebarProps) {
       </header>
 
       {/* Desktop: vertical sidebar */}
-      <aside className="hidden h-screen w-64 flex-col overflow-y-auto border-r border-border-subtle bg-bg-surface px-5 py-6 md:flex md:sticky md:top-0">
+      <aside className="hidden h-screen w-64 flex-col overflow-y-auto border-r border-border-subtle bg-gloss-sidebar px-5 py-6 shadow-sidebar md:flex md:sticky md:top-0">
         <div className="flex items-center gap-2.5">
-          <BrandMark size="sm" />
-          <h1 className="text-sm font-semibold tracking-tight">Applyd</h1>
+          <BrandMark size="md" />
+          <div className="flex flex-col">
+            <h1 className="text-sm font-semibold tracking-tight text-text-primary">
+              Applyd
+            </h1>
+            <p className="text-[10px] uppercase tracking-wider text-text-muted">
+              Job tracker
+            </p>
+          </div>
         </div>
 
-        <div className="mt-8 space-y-1">
-          <p className="eyebrow">Signed in</p>
-          <p className="truncate text-sm text-text-primary" title={email}>
-            {email}
-          </p>
-        </div>
+        <div className="divider-gradient mt-6" />
 
         <div className="mt-6 grid grid-cols-2 gap-3">
           <Stat
@@ -134,21 +136,31 @@ export function StatsSidebar({ email, applications }: StatsSidebarProps) {
         )}
 
         {total > 0 && (
-          <div className="mt-6 space-y-4">
-            <StatusGroup
-              label="Active"
-              statuses={ACTIVE_GROUP}
-              counts={breakdown}
-            />
-            <StatusGroup
-              label="Closed"
-              statuses={CLOSED_GROUP}
-              counts={breakdown}
-            />
-          </div>
+          <>
+            <div className="divider-gradient mt-6" />
+            <div className="mt-6 space-y-4">
+              <StatusGroup
+                label="Active"
+                statuses={ACTIVE_GROUP}
+                counts={breakdown}
+              />
+              <StatusGroup
+                label="Closed"
+                statuses={CLOSED_GROUP}
+                counts={breakdown}
+              />
+            </div>
+          </>
         )}
 
-        <div className="mt-auto pt-6">
+        <div className="mt-auto">
+          <div className="divider-gradient mb-4" />
+          <div className="mb-3 space-y-0.5">
+            <p className="eyebrow">Signed in</p>
+            <p className="truncate text-xs text-text-secondary" title={email}>
+              {email}
+            </p>
+          </div>
           <button onClick={handleLogout} className="btn-secondary w-full">
             <LogOut className="h-4 w-4" />
             Log out
@@ -217,9 +229,9 @@ function ActivityCard({
           const isToday = i === buckets.length - 1;
           const height = b.count === 0 ? 6 : Math.max(10, (b.count / max) * 100);
           const cls = isToday
-            ? "bg-gradient-to-t from-brand-500 to-brand-400 shadow-inner-highlight"
+            ? "bg-gradient-to-t from-brand-500 to-brand-400 shadow-glow-brand-soft ring-1 ring-brand-400/40"
             : isThisWeek
-            ? "bg-gradient-to-t from-brand-600 to-brand-500/90"
+            ? "bg-gradient-to-t from-brand-600 to-brand-500/90 shadow-inner-highlight"
             : "bg-bg-hover";
           return (
             <div
@@ -283,18 +295,30 @@ function Stat({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border-subtle bg-gloss-elevated px-3 py-3 shadow-card transition-all hover:border-border hover:shadow-card-hover">
+    <div
+      className={`relative overflow-hidden rounded-lg border px-3 py-3 transition-all ${
+        accent
+          ? "border-brand-700/60 bg-gloss-hero shadow-card-elevated hover:shadow-glow-brand-soft"
+          : "border-border-subtle bg-gloss-elevated shadow-card hover:border-border hover:shadow-card-hover"
+      }`}
+    >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent ${
+          accent ? "via-brand-400/40" : "via-white/10"
+        }`}
       />
-      <div className="flex items-center gap-1.5 text-text-muted">
+      <div
+        className={`flex items-center gap-1.5 ${
+          accent ? "text-brand-400" : "text-text-muted"
+        }`}
+      >
         {icon}
         <p className="eyebrow">{label}</p>
       </div>
       <p
         className={`mt-1 text-2xl font-semibold tabular-nums ${
-          accent ? "text-brand-400" : "text-text-primary"
+          accent ? "text-text-primary" : "text-text-primary"
         }`}
       >
         {value}

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
+import { Landing } from "@/components/landing";
 
 export default async function RootPage() {
   const supabase = await createServerClient();
@@ -10,5 +11,5 @@ export default async function RootPage() {
   if (user) {
     redirect("/dashboard");
   }
-  redirect("/login");
+  return <Landing />;
 }
