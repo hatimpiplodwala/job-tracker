@@ -9,7 +9,6 @@ load_dotenv()
 class Settings:
     supabase_url: str = os.environ["SUPABASE_URL"]
     supabase_anon_key: str = os.environ["SUPABASE_ANON_KEY"]
-    supabase_jwt_secret: str = os.environ["SUPABASE_JWT_SECRET"]
     cors_origins: list[str] = [
         o.strip()
         for o in os.environ.get("CORS_ORIGINS", "http://localhost:3000").split(",")

@@ -3,4 +3,3 @@ uvicorn[standard]>=0.30
 supabase>=2.4,<2.16
 python-dotenv>=1.0
 pydantic>=2.7
-pyjwt>=2.9

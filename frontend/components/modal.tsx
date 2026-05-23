@@ -53,7 +53,7 @@ export function Modal({ open, onClose, title, children, size = "md" }: ModalProp
         ref={ref}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className={`card relative my-8 w-full ${SIZES[size]} animate-in fade-in zoom-in-95 outline-none`}
+        className={`card relative my-8 w-full ${SIZES[size]} outline-none`}
       >
         <div className="flex items-center justify-between border-b border-border-subtle px-5 py-4">
           <h2 id="modal-title" className="text-base font-semibold tracking-tight">

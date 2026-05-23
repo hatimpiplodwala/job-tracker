@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 
-import jwt
 from fastapi import Depends, Header, HTTPException, status
 
-from app.config import get_settings
 from app.supabase_client import get_user_client
 
 
@@ -24,29 +22,28 @@ def get_current_user(
         )
 
     token = authorization.split(" ", 1)[1].strip()
-    settings = get_settings()
 
+    client = get_user_client(token)
     try:
-        payload = jwt.decode(
-            token,
-            settings.supabase_jwt_secret,
-            algorithms=["HS256"],
-            audience="authenticated",
-        )
-    except jwt.PyJWTError as exc:
+        result = client.auth.get_user(token)
+    except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
         ) from exc
 
-    user_id = payload.get("sub")
-    if not user_id:
+    user = getattr(result, "user", None)
+    if user is None or not getattr(user, "id", None):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token missing subject",
+            detail="Invalid token",
         )
 
-    return CurrentUser(id=user_id, email=payload.get("email"), access_token=token)
+    return CurrentUser(
+        id=user.id,
+        email=getattr(user, "email", None),
+        access_token=token,
+    )
 
 
 def get_db(user: CurrentUser = Depends(get_current_user)):
