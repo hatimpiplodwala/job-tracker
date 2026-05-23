@@ -1,13 +1,29 @@
+# Environment
 .env
-.venv/
-venv/
+.env.local
+.env*.local
+
+# Python (backend)
 __pycache__/
 *.pyc
-.DS_Store
-.streamlit/secrets.toml
-*.log
-.idea/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Node (frontend)
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Editors
 .vscode/
+.idea/
+.DS_Store
+*.log
+
+# Personal / local docs
 prd.md
 supabase_setup.sql
 progress.txt

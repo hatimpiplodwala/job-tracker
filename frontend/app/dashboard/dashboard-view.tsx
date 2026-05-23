@@ -1,0 +1,103 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { StatsSidebar } from "@/components/stats-sidebar";
+import { ApplicationsTable } from "@/components/applications-table";
+import { ApplicationFormDialog } from "@/components/application-form-dialog";
+import { api } from "@/lib/api";
+import { downloadCsv } from "@/lib/csv";
+import type { Application } from "@/lib/types";
+
+interface DashboardViewProps {
+  email: string;
+}
+
+export function DashboardView({ email }: DashboardViewProps) {
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [editing, setEditing] = useState<Application | null>(null);
+
+  const load = useCallback(async () => {
+    setError(null);
+    try {
+      const data = await api.listApplications();
+      setApplications(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load applications");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  function handleExport() {
+    if (applications.length === 0) return;
+    downloadCsv(applications);
+  }
+
+  return (
+    <>
+      <StatsSidebar email={email} applications={applications} />
+
+      <main className="flex-1 overflow-x-auto">
+        <div className="mx-auto max-w-6xl px-8 py-8">
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">
+                Applications
+              </h2>
+              <p className="mt-1 text-sm text-text-secondary">
+                Track everywhere you&apos;ve applied.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleExport}
+                disabled={applications.length === 0}
+                className="btn-secondary"
+              >
+                Export CSV
+              </button>
+              <button onClick={() => setAddOpen(true)} className="btn-primary">
+                + Add application
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div className="card mb-4 border-status-rejected-border p-4">
+              <p className="text-sm text-status-rejected-text">{error}</p>
+              <button onClick={load} className="btn-ghost mt-2">
+                Retry
+              </button>
+            </div>
+          )}
+
+          <ApplicationsTable
+            applications={applications}
+            loading={loading}
+            onEdit={setEditing}
+          />
+        </div>
+      </main>
+
+      <ApplicationFormDialog
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onSaved={load}
+      />
+
+      <ApplicationFormDialog
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        onSaved={load}
+        application={editing ?? undefined}
+      />
+    </>
+  );
+}
