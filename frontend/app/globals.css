@@ -52,11 +52,11 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow-md active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand-600 disabled:active:scale-100;
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-gloss-brand px-4 py-2 text-sm font-medium text-white shadow-btn-primary transition-all hover:bg-gloss-brand-hover hover:shadow-btn-primary-hover active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border-subtle bg-bg-surface px-4 py-2 text-sm font-medium text-text-primary transition-all hover:border-border hover:bg-bg-hover active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border-subtle bg-gloss-surface px-4 py-2 text-sm font-medium text-text-primary shadow-inner-highlight transition-all hover:border-border hover:bg-gloss-elevated active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
   }
 
   .btn-ghost {
@@ -64,19 +64,37 @@
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-status-rejected-border bg-status-rejected-bg px-3 py-2 text-sm font-medium text-status-rejected-text transition-colors hover:bg-status-rejected-border/40 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-status-rejected-border bg-status-rejected-bg px-3 py-2 text-sm font-medium text-status-rejected-text shadow-inner-highlight transition-colors hover:bg-status-rejected-border/40 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .input-base {
-    @apply w-full rounded-md border border-border-subtle bg-bg-surface px-3 py-2 text-base text-text-primary placeholder:text-text-muted transition-colors hover:border-border focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:text-sm;
+    @apply w-full rounded-md border border-border-subtle bg-bg-base px-3 py-2 text-base text-text-primary shadow-inner-deep placeholder:text-text-muted transition-colors hover:border-border focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:text-sm;
   }
 
   .card {
-    @apply rounded-lg border border-border-subtle bg-bg-surface;
+    @apply relative rounded-lg border border-border-subtle bg-gloss-surface shadow-card;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.07) 50%,
+      transparent 100%
+    );
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    pointer-events: none;
   }
 
   .card-interactive {
-    @apply rounded-lg border border-border-subtle bg-bg-surface transition-all hover:border-border hover:shadow-card-hover;
+    @apply relative rounded-lg border border-border-subtle bg-gloss-surface shadow-card transition-all hover:border-border hover:shadow-card-hover;
   }
 
   /* Small uppercase label used above sections and stat blocks */

@@ -183,7 +183,11 @@ function ActivityCard({
       : "text-text-muted";
 
   return (
-    <div className="mt-6 rounded-lg border border-border-subtle bg-bg-elevated px-3 py-3">
+    <div className="relative mt-6 overflow-hidden rounded-lg border border-border-subtle bg-gloss-elevated px-3 py-3 shadow-card">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+      />
       <div className="flex items-center justify-between">
         <p className="eyebrow">Last 14 days</p>
         {!noTrend && (
@@ -213,9 +217,9 @@ function ActivityCard({
           const isToday = i === buckets.length - 1;
           const height = b.count === 0 ? 6 : Math.max(10, (b.count / max) * 100);
           const cls = isToday
-            ? "bg-brand-400"
+            ? "bg-gradient-to-t from-brand-500 to-brand-400 shadow-inner-highlight"
             : isThisWeek
-            ? "bg-brand-500/80"
+            ? "bg-gradient-to-t from-brand-600 to-brand-500/90"
             : "bg-bg-hover";
           return (
             <div
@@ -279,7 +283,11 @@ function Stat({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-border-subtle bg-bg-elevated px-3 py-3 transition-colors hover:border-border">
+    <div className="relative overflow-hidden rounded-lg border border-border-subtle bg-gloss-elevated px-3 py-3 shadow-card transition-all hover:border-border hover:shadow-card-hover">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+      />
       <div className="flex items-center gap-1.5 text-text-muted">
         {icon}
         <p className="eyebrow">{label}</p>
@@ -305,7 +313,7 @@ function InlineStat({
   accent?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-1 rounded-md border border-border-subtle bg-bg-elevated px-2 py-1">
+    <div className="flex items-center gap-1 rounded-md border border-border-subtle bg-gloss-elevated px-2 py-1 shadow-inner-highlight">
       <span className="text-[10px] font-medium uppercase tracking-wider text-text-muted">
         {label}
       </span>

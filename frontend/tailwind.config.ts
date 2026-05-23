@@ -47,8 +47,19 @@ const config: Config = {
       },
       boxShadow: {
         glow: "0 0 0 1px rgba(124, 58, 237, 0.4), 0 0 24px -8px rgba(124, 58, 237, 0.4)",
-        card: "0 1px 2px rgba(0, 0, 0, 0.25), 0 1px 1px rgba(0, 0, 0, 0.15)",
-        "card-hover": "0 4px 12px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2)",
+        card: "0 1px 2px rgba(0, 0, 0, 0.25), 0 1px 1px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)",
+        "card-hover": "0 8px 24px -6px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+        "inner-highlight": "inset 0 1px 0 rgba(255, 255, 255, 0.08)",
+        "inner-deep": "inset 0 1px 2px rgba(0, 0, 0, 0.35)",
+        "btn-primary": "0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.15)",
+        "btn-primary-hover": "0 4px 12px -2px rgba(124, 58, 237, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
+      },
+      backgroundImage: {
+        "gloss-surface": "linear-gradient(to bottom, #1A1F27, #14181F)",
+        "gloss-elevated": "linear-gradient(to bottom, #1F252D, #181D24)",
+        "gloss-brand": "linear-gradient(to bottom, #8B5CF6, #7C3AED)",
+        "gloss-brand-hover": "linear-gradient(to bottom, #A78BFA, #8B5CF6)",
+        "bar-shine": "linear-gradient(to top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.12) 100%)",
       },
       keyframes: {
         shimmer: {

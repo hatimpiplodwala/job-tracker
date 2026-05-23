@@ -189,7 +189,7 @@ function Card({ app, dragging }: { app: Application; dragging?: boolean }) {
       className={`card p-3 text-sm transition-all ${
         dragging
           ? "rotate-1 shadow-card-hover ring-2 ring-brand-500"
-          : "hover:border-border hover:bg-bg-hover"
+          : "hover:border-border hover:bg-gloss-elevated hover:shadow-card-hover"
       }`}
     >
       <div className="font-medium text-text-primary">{app.company}</div>
