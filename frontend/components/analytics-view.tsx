@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import { BarChart3, LineChart, TrendingUp } from "lucide-react";
+import { StatusDot } from "@/components/status-badge";
 import { STATUSES, type Application, type Status } from "@/lib/types";
 
 interface AnalyticsViewProps {
@@ -22,7 +24,7 @@ const STAGE_ORDER: Record<Status, number> = {
   Withdrawn: -1,
 };
 
-const STATUS_COLOR: Record<Status, string> = {
+const STATUS_CARD: Record<Status, string> = {
   Applied: "bg-status-applied-bg border-status-applied-border",
   "Phone Screen": "bg-status-screen-bg border-status-screen-border",
   Interview: "bg-status-interview-bg border-status-interview-border",
@@ -101,10 +103,16 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
 
   if (applications.length === 0) {
     return (
-      <div className="card p-12 text-center">
-        <p className="text-sm text-text-secondary">
-          Add some applications to see your analytics.
-        </p>
+      <div className="card flex flex-col items-center justify-center gap-3 p-12 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border-subtle bg-bg-elevated text-text-muted">
+          <LineChart className="h-5 w-5" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-text-primary">No data yet</p>
+          <p className="mt-1 text-xs text-text-muted">
+            Add some applications to see your analytics.
+          </p>
+        </div>
       </div>
     );
   }
@@ -115,10 +123,13 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
         {STATUSES.map((s) => (
           <div
             key={s}
-            className={`rounded-md border p-3 ${STATUS_COLOR[s]}`}
+            className={`rounded-md border p-3 transition-transform hover:-translate-y-0.5 ${STATUS_CARD[s]}`}
           >
-            <div className="text-xs font-medium text-text-secondary">{s}</div>
-            <div className="mt-1 text-2xl font-semibold text-text-primary">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+              <StatusDot status={s} />
+              {s}
+            </div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-text-primary">
               {counts[s]}
             </div>
           </div>
@@ -128,11 +139,15 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className="card p-5">
           <header className="mb-4 flex items-baseline justify-between">
-            <h3 className="text-sm font-semibold text-text-primary">
+            <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-text-primary">
+              <TrendingUp className="h-4 w-4 text-brand-400" />
               Funnel
             </h3>
             <span className="text-xs text-text-muted">
-              Response rate: {responseRate}%
+              Response rate:{" "}
+              <span className="font-medium tabular-nums text-text-secondary">
+                {responseRate}%
+              </span>
             </span>
           </header>
           <div className="space-y-3">
@@ -144,16 +159,18 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
                     <span className="font-medium text-text-primary">
                       {row.stage}
                     </span>
-                    <span className="text-text-muted">
+                    <span className="tabular-nums text-text-muted">
                       {row.count}
                       {!row.isFirst && (
-                        <span className="ml-2">({row.conversion}%)</span>
+                        <span className="ml-2 text-text-secondary">
+                          ({row.conversion}%)
+                        </span>
                       )}
                     </span>
                   </div>
                   <div className="h-6 overflow-hidden rounded bg-bg-elevated">
                     <div
-                      className="h-full bg-brand-500 transition-all"
+                      className="h-full bg-gradient-to-r from-brand-600 to-brand-500 transition-all duration-500"
                       style={{ width: `${Math.max(width, 2)}%` }}
                     />
                   </div>
@@ -169,7 +186,8 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
 
         <section className="card p-5">
           <header className="mb-4">
-            <h3 className="text-sm font-semibold text-text-primary">
+            <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-text-primary">
+              <BarChart3 className="h-4 w-4 text-brand-400" />
               Applications per month
             </h3>
             <p className="mt-1 text-xs text-text-muted">Last 6 months</p>
@@ -180,14 +198,14 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
               return (
                 <div
                   key={m.key}
-                  className="flex flex-1 flex-col items-center gap-1"
+                  className="group flex flex-1 flex-col items-center gap-1"
                 >
                   <div className="text-[10px] font-medium text-text-secondary">
                     {m.count}
                   </div>
                   <div className="flex w-full flex-1 items-end">
                     <div
-                      className="w-full rounded-t bg-brand-500/80 transition-all"
+                      className="w-full rounded-t bg-gradient-to-t from-brand-600/70 to-brand-500/90 transition-all duration-300 group-hover:from-brand-600 group-hover:to-brand-400"
                       style={{ height: `${m.count === 0 ? 2 : height}%` }}
                     />
                   </div>

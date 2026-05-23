@@ -13,7 +13,8 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { StatusBadge } from "@/components/status-badge";
+import { Calendar, MapPin, MoveRight } from "lucide-react";
+import { StatusDot } from "@/components/status-badge";
 import { api } from "@/lib/api";
 import { STATUSES, type Application, type Status } from "@/lib/types";
 
@@ -120,23 +121,27 @@ function Column({
   return (
     <div className="flex w-72 flex-shrink-0 flex-col">
       <div className="mb-2 flex items-center justify-between px-1">
-        <StatusBadge status={status} />
-        <span className="text-xs tabular-nums text-text-muted">
+        <div className="flex items-center gap-2">
+          <StatusDot status={status} />
+          <span className="text-sm font-medium text-text-primary">{status}</span>
+        </div>
+        <span className="rounded-full bg-bg-elevated px-2 py-0.5 text-xs font-medium tabular-nums text-text-muted">
           {apps.length}
         </span>
       </div>
       <div
         ref={setNodeRef}
-        className={`flex min-h-[200px] flex-col gap-2 rounded-lg border p-2 transition-colors ${
+        className={`flex min-h-[200px] flex-col gap-2 rounded-lg border p-2 transition-all ${
           isOver
-            ? "border-brand-500 bg-bg-hover"
+            ? "border-brand-500 bg-brand-500/5 shadow-glow"
             : "border-border-subtle bg-bg-elevated/40"
         }`}
       >
         {apps.length === 0 ? (
-          <p className="px-2 py-4 text-center text-xs text-text-muted">
-            Drop here
-          </p>
+          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-border-subtle/60 px-2 py-6 text-center">
+            <MoveRight className="h-4 w-4 text-text-muted" />
+            <p className="text-xs text-text-muted">Drop here</p>
+          </div>
         ) : (
           apps.map((app) => (
             <DraggableCard key={app.id} app={app} onEdit={() => onEdit(app)} />
@@ -181,19 +186,27 @@ function DraggableCard({
 function Card({ app, dragging }: { app: Application; dragging?: boolean }) {
   return (
     <div
-      className={`card p-3 text-sm ${
-        dragging ? "shadow-lg ring-2 ring-brand-500" : "hover:bg-bg-hover"
+      className={`card p-3 text-sm transition-all ${
+        dragging
+          ? "rotate-1 shadow-card-hover ring-2 ring-brand-500"
+          : "hover:border-border hover:bg-bg-hover"
       }`}
     >
       <div className="font-medium text-text-primary">{app.company}</div>
       <div className="text-xs text-text-secondary">{app.role}</div>
       <div className="mt-2 flex items-center justify-between text-[11px] text-text-muted">
-        <span className="tabular-nums">{app.date_applied}</span>
-        {app.location && <span className="truncate pl-2">{app.location}</span>}
+        <span className="inline-flex items-center gap-1 tabular-nums">
+          <Calendar className="h-2.5 w-2.5" />
+          {app.date_applied}
+        </span>
+        {app.location && (
+          <span className="inline-flex items-center gap-1 truncate pl-2">
+            <MapPin className="h-2.5 w-2.5 flex-shrink-0" />
+            <span className="truncate">{app.location}</span>
+          </span>
+        )}
       </div>
-      {app.follow_up_date && (
-        <CardFollowUp date={app.follow_up_date} />
-      )}
+      {app.follow_up_date && <CardFollowUp date={app.follow_up_date} />}
     </div>
   );
 }
@@ -214,8 +227,9 @@ function CardFollowUp({ date }: { date: string }) {
     : `Follow up in ${days}d`;
   return (
     <div
-      className={`mt-2 inline-block rounded border px-1.5 py-0.5 text-[10px] ${cls}`}
+      className={`mt-2 inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] ${cls}`}
     >
+      <Calendar className="h-2.5 w-2.5" />
       {label}
     </div>
   );

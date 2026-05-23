@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Save, Sparkles, Trash2 } from "lucide-react";
 import { Modal } from "@/components/modal";
 import { api } from "@/lib/api";
 import { STATUSES, type Application, type ApplicationInput, type Status } from "@/lib/types";
@@ -217,7 +218,8 @@ export function ApplicationFormDialog({
         {!isEdit && (
           <div className="rounded-md border border-border-subtle bg-bg-elevated/60 p-3">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <span className="text-xs font-medium text-text-secondary">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+                <Sparkles className="h-3.5 w-3.5 text-brand-400" />
                 Auto-fill from URL or pasted text
               </span>
               <div
@@ -429,8 +431,9 @@ export function ApplicationFormDialog({
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="inline-flex items-center justify-center gap-2 rounded-md border border-status-rejected-border bg-status-rejected-bg px-3 py-2 text-sm font-medium text-status-rejected-text transition-colors hover:bg-status-rejected-border/40 disabled:opacity-50"
+                className="btn-danger"
               >
+                <Trash2 className="h-3.5 w-3.5" />
                 {deleting
                   ? "Deleting…"
                   : confirmDelete
@@ -444,6 +447,7 @@ export function ApplicationFormDialog({
               Cancel
             </button>
             <button type="submit" disabled={saving} className="btn-primary">
+              <Save className="h-3.5 w-3.5" />
               {saving
                 ? "Saving…"
                 : duplicateWarning

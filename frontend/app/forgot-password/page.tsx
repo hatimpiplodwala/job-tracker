@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { AlertCircle, ArrowLeft, CheckCircle2, Mail, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { BrandMark } from "@/components/brand";
 
@@ -39,20 +40,23 @@ export default function ForgotPasswordPage() {
         </div>
 
         {sent ? (
-          <div className="card p-6 space-y-4">
-            <p className="text-sm text-text-primary">
+          <div className="card p-6 space-y-4 shadow-card animate-fade-in">
+            <div className="flex justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-status-offer-border bg-status-offer-bg text-status-offer-text">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+            </div>
+            <p className="text-center text-sm text-text-primary">
               If an account exists for <strong>{email}</strong>, a password
               reset link is on its way. Check your inbox (and spam).
             </p>
-            <Link
-              href="/login"
-              className="btn-secondary w-full"
-            >
+            <Link href="/login" className="btn-secondary w-full">
+              <ArrowLeft className="h-4 w-4" />
               Back to sign in
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="card p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="card p-6 space-y-4 shadow-card">
             <div>
               <label
                 htmlFor="email"
@@ -60,21 +64,28 @@ export default function ForgotPasswordPage() {
               >
                 Email
               </label>
-              <input
-                id="email"
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-base"
-              />
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden />
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-base pl-9"
+                />
+              </div>
             </div>
 
             {error && (
-              <p className="text-sm text-status-rejected-text" role="alert">
-                {error}
-              </p>
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-md border border-status-rejected-border bg-status-rejected-bg px-3 py-2 text-sm text-status-rejected-text"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
             )}
 
             <button
@@ -82,6 +93,7 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="btn-primary w-full"
             >
+              <Send className="h-4 w-4" />
               {loading ? "Sending…" : "Send reset link"}
             </button>
 

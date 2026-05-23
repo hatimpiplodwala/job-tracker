@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { BarChart3, Columns3, Download, Plus, Table2 } from "lucide-react";
 import { StatsSidebar } from "@/components/stats-sidebar";
 import { ApplicationsTable } from "@/components/applications-table";
 import { ApplicationFormDialog } from "@/components/application-form-dialog";
@@ -11,6 +12,12 @@ import { downloadCsv } from "@/lib/csv";
 import type { Application } from "@/lib/types";
 
 type View = "table" | "kanban" | "analytics";
+
+const VIEW_META: Record<View, { label: string; icon: typeof Table2 }> = {
+  table: { label: "Table", icon: Table2 },
+  kanban: { label: "Kanban", icon: Columns3 },
+  analytics: { label: "Analytics", icon: BarChart3 },
+};
 
 interface DashboardViewProps {
   email: string;
@@ -67,7 +74,8 @@ export function DashboardView({ email }: DashboardViewProps) {
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-8">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-xl font-semibold tracking-tight">
+              <p className="eyebrow">Dashboard</p>
+              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-text-primary">
                 Applications
               </h2>
               <p className="mt-1 text-sm text-text-secondary">
@@ -80,13 +88,15 @@ export function DashboardView({ email }: DashboardViewProps) {
                 disabled={applications.length === 0}
                 className="btn-secondary flex-1 sm:flex-none"
               >
+                <Download className="h-4 w-4" />
                 Export CSV
               </button>
               <button
                 onClick={() => setAddOpen(true)}
                 className="btn-primary flex-1 sm:flex-none"
               >
-                + Add application
+                <Plus className="h-4 w-4" />
+                Add application
               </button>
             </div>
           </div>
@@ -102,23 +112,25 @@ export function DashboardView({ email }: DashboardViewProps) {
 
           <ViewTabs view={view} onChange={setView} />
 
-          {view === "table" && (
-            <ApplicationsTable
-              applications={applications}
-              loading={loading}
-              onEdit={setEditing}
-            />
-          )}
-          {view === "kanban" && (
-            <KanbanBoard
-              applications={applications}
-              onEdit={setEditing}
-              onSaved={handleSaved}
-            />
-          )}
-          {view === "analytics" && (
-            <AnalyticsView applications={applications} />
-          )}
+          <div key={view} className="animate-fade-in">
+            {view === "table" && (
+              <ApplicationsTable
+                applications={applications}
+                loading={loading}
+                onEdit={setEditing}
+              />
+            )}
+            {view === "kanban" && (
+              <KanbanBoard
+                applications={applications}
+                onEdit={setEditing}
+                onSaved={handleSaved}
+              />
+            )}
+            {view === "analytics" && (
+              <AnalyticsView applications={applications} />
+            )}
+          </div>
         </div>
       </main>
 
@@ -153,21 +165,26 @@ function ViewTabs({
       aria-label="Application view"
       className="mb-4 inline-flex rounded-md border border-border-subtle bg-bg-elevated p-1"
     >
-      {(["table", "kanban", "analytics"] as const).map((v) => (
-        <button
-          key={v}
-          role="tab"
-          aria-selected={view === v}
-          onClick={() => onChange(v)}
-          className={`rounded px-3 py-1 text-sm font-medium capitalize transition-colors ${
-            view === v
-              ? "bg-brand-500 text-white"
-              : "text-text-secondary hover:text-text-primary"
-          }`}
-        >
-          {v}
-        </button>
-      ))}
+      {(["table", "kanban", "analytics"] as const).map((v) => {
+        const Icon = VIEW_META[v].icon;
+        const active = view === v;
+        return (
+          <button
+            key={v}
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(v)}
+            className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+              active
+                ? "bg-brand-600 text-white shadow-sm"
+                : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+            }`}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{VIEW_META[v].label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

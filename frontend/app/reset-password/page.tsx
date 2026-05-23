@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AlertCircle, CheckCircle2, Lock, Send, XCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { BrandMark } from "@/components/brand";
 
@@ -89,22 +90,33 @@ export default function ResetPasswordPage() {
         </div>
 
         {done ? (
-          <div className="card p-6">
-            <p className="text-sm text-text-primary">
-              Password updated. Taking you to your dashboard…
-            </p>
+          <div className="card p-6 shadow-card animate-fade-in">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-status-offer-border bg-status-offer-bg text-status-offer-text">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+              <p className="text-sm text-text-primary">
+                Password updated. Taking you to your dashboard…
+              </p>
+            </div>
           </div>
         ) : invalidLink ? (
-          <div className="card p-6 space-y-4">
-            <p className="text-sm text-text-primary">
-              This reset link is invalid or expired. Request a new one.
-            </p>
+          <div className="card p-6 space-y-4 shadow-card">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-status-rejected-border bg-status-rejected-bg text-status-rejected-text">
+                <XCircle className="h-6 w-6" />
+              </div>
+              <p className="text-sm text-text-primary">
+                This reset link is invalid or expired. Request a new one.
+              </p>
+            </div>
             <Link href="/forgot-password" className="btn-secondary w-full">
+              <Send className="h-4 w-4" />
               Send a new link
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="card p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="card p-6 space-y-4 shadow-card">
             <div>
               <label
                 htmlFor="password"
@@ -112,17 +124,20 @@ export default function ResetPasswordPage() {
               >
                 New password
               </label>
-              <input
-                id="password"
-                type="password"
-                required
-                minLength={6}
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-base"
-                disabled={!ready}
-              />
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden />
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-base pl-9"
+                  disabled={!ready}
+                />
+              </div>
               <p className="mt-1 text-xs text-text-muted">
                 At least 6 characters.
               </p>
@@ -135,23 +150,30 @@ export default function ResetPasswordPage() {
               >
                 Confirm new password
               </label>
-              <input
-                id="confirm"
-                type="password"
-                required
-                minLength={6}
-                autoComplete="new-password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                className="input-base"
-                disabled={!ready}
-              />
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden />
+                <input
+                  id="confirm"
+                  type="password"
+                  required
+                  minLength={6}
+                  autoComplete="new-password"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  className="input-base pl-9"
+                  disabled={!ready}
+                />
+              </div>
             </div>
 
             {error && (
-              <p className="text-sm text-status-rejected-text" role="alert">
-                {error}
-              </p>
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-md border border-status-rejected-border bg-status-rejected-bg px-3 py-2 text-sm text-status-rejected-text"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
             )}
 
             <button

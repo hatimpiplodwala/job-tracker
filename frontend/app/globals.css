@@ -16,11 +16,11 @@
   }
 
   body {
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
   }
 
   *:focus-visible {
-    outline: 2px solid #7c3aed;
+    outline: 2px solid #8b5cf6;
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -42,26 +42,62 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #3d444d;
   }
+
+  /* Subtle selection color tied to brand */
+  ::selection {
+    background-color: rgba(139, 92, 246, 0.3);
+    color: #e6edf3;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow-md active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand-600 disabled:active:scale-100;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border-subtle bg-bg-surface px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border-subtle bg-bg-surface px-4 py-2 text-sm font-medium text-text-primary transition-all hover:border-border hover:bg-bg-hover active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-hover hover:text-text-primary;
   }
 
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-status-rejected-border bg-status-rejected-bg px-3 py-2 text-sm font-medium text-status-rejected-text transition-colors hover:bg-status-rejected-border/40 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
   .input-base {
-    @apply w-full rounded-md border border-border-subtle bg-bg-surface px-3 py-2 text-base text-text-primary placeholder:text-text-muted focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600 sm:text-sm;
+    @apply w-full rounded-md border border-border-subtle bg-bg-surface px-3 py-2 text-base text-text-primary placeholder:text-text-muted transition-colors hover:border-border focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:text-sm;
   }
 
   .card {
     @apply rounded-lg border border-border-subtle bg-bg-surface;
+  }
+
+  .card-interactive {
+    @apply rounded-lg border border-border-subtle bg-bg-surface transition-all hover:border-border hover:shadow-card-hover;
+  }
+
+  /* Small uppercase label used above sections and stat blocks */
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-wider text-text-muted;
+  }
+
+  /* Status dot — paired with text label or status badge */
+  .dot {
+    @apply inline-block h-2 w-2 rounded-full;
+  }
+
+  /* Skeleton shimmer for loading states */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #1c2128 0%,
+      #262c33 50%,
+      #1c2128 100%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer rounded;
   }
 }

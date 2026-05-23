@@ -1,9 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Calendar,
+  ExternalLink,
+  Inbox,
+  Pencil,
+  SearchX,
+} from "lucide-react";
 import { StatusBadge } from "@/components/status-badge";
 import { FilterBar, type StatusFilter } from "@/components/filter-bar";
-import type { Application } from "@/lib/types";
+import type { Application, Status } from "@/lib/types";
 
 interface ApplicationsTableProps {
   applications: Application[];
@@ -13,6 +23,16 @@ interface ApplicationsTableProps {
 
 type SortKey = "date_applied" | "company" | "role" | "status";
 type SortDir = "asc" | "desc";
+
+// Maps status to the left-border accent for each row.
+const STATUS_ROW_ACCENT: Record<Status, string> = {
+  Applied: "before:bg-status-applied-dot",
+  "Phone Screen": "before:bg-status-screen-dot",
+  Interview: "before:bg-status-interview-dot",
+  Offer: "before:bg-status-offer-dot",
+  Rejected: "before:bg-status-rejected-dot",
+  Withdrawn: "before:bg-status-withdrawn-dot",
+};
 
 export function ApplicationsTable({
   applications,
@@ -57,6 +77,8 @@ export function ApplicationsTable({
       setSortDir(key === "date_applied" ? "desc" : "asc");
     }
   }
+
+  const hasFilters = statusFilter !== "All" || search.trim().length > 0;
 
   return (
     <div className="space-y-4">
@@ -106,16 +128,7 @@ export function ApplicationsTable({
               {loading ? (
                 <SkeletonRows />
               ) : filtered.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="px-4 py-12 text-center text-sm text-text-muted"
-                  >
-                    {applications.length === 0
-                      ? "No applications yet. Add your first one."
-                      : "No applications match your filters."}
-                  </td>
-                </tr>
+                <EmptyRow hasFilters={hasFilters} />
               ) : (
                 filtered.map((a) => (
                   <Row key={a.id} app={a} onEdit={() => onEdit(a)} />
@@ -146,19 +159,18 @@ function SortableHeader({
   dir: SortDir;
   onClick: () => void;
 }) {
+  const Icon = !active ? ArrowUpDown : dir === "asc" ? ArrowUp : ArrowDown;
   return (
     <th className="px-4 py-3 font-medium">
       <button
         type="button"
         onClick={onClick}
-        className={`inline-flex items-center gap-1 transition-colors ${
+        className={`inline-flex items-center gap-1.5 transition-colors ${
           active ? "text-text-primary" : "hover:text-text-secondary"
         }`}
       >
         {label}
-        <span aria-hidden className="text-text-muted">
-          {active ? (dir === "asc" ? "↑" : "↓") : "↕"}
-        </span>
+        <Icon className={`h-3 w-3 ${active ? "text-brand-400" : "text-text-muted"}`} />
       </button>
     </th>
   );
@@ -166,8 +178,10 @@ function SortableHeader({
 
 function Row({ app, onEdit }: { app: Application; onEdit: () => void }) {
   return (
-    <tr className="group border-b border-border-subtle last:border-0 hover:bg-bg-hover">
-      <td className="px-4 py-3 font-medium text-text-primary">
+    <tr
+      className={`group relative border-b border-border-subtle transition-colors last:border-0 hover:bg-bg-hover before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:opacity-60 before:transition-opacity hover:before:opacity-100 ${STATUS_ROW_ACCENT[app.status]}`}
+    >
+      <td className="px-4 py-3 pl-5 font-medium text-text-primary">
         <div>{app.company}</div>
         {app.follow_up_date && <FollowUpBadge date={app.follow_up_date} />}
       </td>
@@ -190,9 +204,10 @@ function Row({ app, onEdit }: { app: Application; onEdit: () => void }) {
             href={app.job_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand-400 hover:text-brand-500"
+            className="inline-flex items-center gap-1 text-brand-400 hover:text-brand-500"
           >
-            View ↗
+            View
+            <ExternalLink className="h-3 w-3" />
           </a>
         ) : (
           <span className="text-text-muted">—</span>
@@ -202,25 +217,52 @@ function Row({ app, onEdit }: { app: Application; onEdit: () => void }) {
         <button
           type="button"
           onClick={onEdit}
+          aria-label={`Edit ${app.company}`}
           className="btn-ghost md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:focus:opacity-100"
         >
-          Edit
+          <Pencil className="h-3.5 w-3.5" />
+          <span>Edit</span>
         </button>
       </td>
     </tr>
   );
 }
 
+function EmptyRow({ hasFilters }: { hasFilters: boolean }) {
+  const Icon = hasFilters ? SearchX : Inbox;
+  return (
+    <tr>
+      <td colSpan={8} className="px-4 py-16 text-center">
+        <div className="mx-auto flex max-w-sm flex-col items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border-subtle bg-bg-elevated text-text-muted">
+            <Icon className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-text-primary">
+              {hasFilters ? "No matches" : "No applications yet"}
+            </p>
+            <p className="mt-1 text-xs text-text-muted">
+              {hasFilters
+                ? "Try clearing your filters or searching for something else."
+                : "Add your first application to start tracking your job search."}
+            </p>
+          </div>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 function SkeletonRows() {
-  const cells: { hide?: string }[] = [
-    {},
-    {},
-    {},
-    {},
-    { hide: "hidden lg:table-cell" },
-    { hide: "hidden lg:table-cell" },
-    { hide: "hidden md:table-cell" },
-    {},
+  const cells: { hide?: string; w: string }[] = [
+    { w: "w-28" },
+    { w: "w-36" },
+    { w: "w-20" },
+    { w: "w-24" },
+    { hide: "hidden lg:table-cell", w: "w-20" },
+    { hide: "hidden lg:table-cell", w: "w-24" },
+    { hide: "hidden md:table-cell", w: "w-12" },
+    { w: "w-10" },
   ];
   return (
     <>
@@ -228,7 +270,7 @@ function SkeletonRows() {
         <tr key={i} className="border-b border-border-subtle last:border-0">
           {cells.map((c, j) => (
             <td key={j} className={`px-4 py-4 ${c.hide ?? ""}`}>
-              <div className="h-3 w-full max-w-[120px] animate-pulse rounded bg-bg-hover" />
+              <div className={`skeleton h-3 ${c.w}`} />
             </td>
           ))}
         </tr>
@@ -261,8 +303,9 @@ function FollowUpBadge({ date }: { date: string }) {
     : `Follow up in ${days}d`;
   return (
     <span
-      className={`mt-1 inline-block rounded border px-1.5 py-0.5 text-[10px] font-normal ${cls}`}
+      className={`mt-1 inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-normal ${cls}`}
     >
+      <Calendar className="h-2.5 w-2.5" />
       {label}
     </span>
   );

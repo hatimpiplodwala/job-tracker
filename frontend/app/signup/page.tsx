@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AlertCircle, Lock, Mail, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { BrandMark } from "@/components/brand";
 
@@ -37,46 +38,57 @@ export default function SignupPage() {
           <p className="mt-2 text-sm text-text-secondary">Create your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="card p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="card p-6 space-y-4 shadow-card">
           <div>
             <label htmlFor="email" className="block text-xs font-medium text-text-secondary mb-1.5">
               Email
             </label>
-            <input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input-base"
-            />
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden />
+              <input
+                id="email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-base pl-9"
+              />
+            </div>
           </div>
 
           <div>
             <label htmlFor="password" className="block text-xs font-medium text-text-secondary mb-1.5">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              required
-              minLength={6}
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input-base"
-            />
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden />
+              <input
+                id="password"
+                type="password"
+                required
+                minLength={6}
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-base pl-9"
+              />
+            </div>
             <p className="mt-1 text-xs text-text-muted">At least 6 characters.</p>
           </div>
 
           {error && (
-            <p className="text-sm text-status-rejected-text" role="alert">
-              {error}
-            </p>
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-md border border-status-rejected-border bg-status-rejected-bg px-3 py-2 text-sm text-status-rejected-text"
+            >
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
           )}
 
           <button type="submit" disabled={loading} className="btn-primary w-full">
+            <UserPlus className="h-4 w-4" />
             {loading ? "Creating account…" : "Create account"}
           </button>
 

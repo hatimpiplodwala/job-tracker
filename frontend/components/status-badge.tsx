@@ -15,12 +15,26 @@ const STYLES: Record<Status, string> = {
     "bg-status-withdrawn-bg text-status-withdrawn-text border-status-withdrawn-border",
 };
 
+const DOTS: Record<Status, string> = {
+  Applied: "bg-status-applied-dot",
+  "Phone Screen": "bg-status-screen-dot",
+  Interview: "bg-status-interview-dot",
+  Offer: "bg-status-offer-dot",
+  Rejected: "bg-status-rejected-dot",
+  Withdrawn: "bg-status-withdrawn-dot",
+};
+
 export function StatusBadge({ status }: { status: Status }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${STYLES[status]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium ${STYLES[status]}`}
     >
+      <span className={`dot ${DOTS[status]}`} aria-hidden />
       {status}
     </span>
   );
+}
+
+export function StatusDot({ status }: { status: Status }) {
+  return <span className={`dot ${DOTS[status]}`} aria-hidden />;
 }
