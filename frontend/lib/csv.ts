@@ -12,9 +12,15 @@ const COLUMNS: { key: keyof Application; header: string }[] = [
   { key: "notes", header: "Notes" },
 ];
 
+const FORMULA_PREFIXES = ["=", "+", "-", "@", "\t", "\r"];
+
 function escape(value: unknown): string {
   if (value === null || value === undefined) return "";
-  const s = String(value);
+  let s = String(value);
+  // Neutralize spreadsheet formula injection (CWE-1236).
+  if (s.length > 0 && FORMULA_PREFIXES.includes(s[0])) {
+    s = "'" + s;
+  }
   if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
     return `"${s.replace(/"/g, '""')}"`;
   }

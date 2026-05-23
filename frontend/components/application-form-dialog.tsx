@@ -100,7 +100,19 @@ export function ApplicationFormDialog({
       return;
     }
 
-    if (!forceSubmit) {
+    const url = form.job_url.trim();
+    if (url && !/^https?:\/\//i.test(url)) {
+      setError("Job URL must start with http:// or https://");
+      return;
+    }
+
+    const companyChanged =
+      !application || form.company.trim() !== application.company;
+    const roleChanged =
+      !application || form.role.trim() !== application.role;
+    const needsDuplicateCheck = !forceSubmit && (companyChanged || roleChanged);
+
+    if (needsDuplicateCheck) {
       try {
         const { exists } = await api.duplicateCheck(
           form.company.trim(),

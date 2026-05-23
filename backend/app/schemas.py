@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Status = Literal[
     "Applied",
@@ -11,6 +11,15 @@ Status = Literal[
     "Rejected",
     "Withdrawn",
 ]
+
+
+def _validate_http_url(value: str | None) -> str | None:
+    if value is None or value == "":
+        return None
+    lower = value.strip().lower()
+    if not (lower.startswith("http://") or lower.startswith("https://")):
+        raise ValueError("job_url must start with http:// or https://")
+    return value
 
 
 class ApplicationBase(BaseModel):
@@ -23,6 +32,8 @@ class ApplicationBase(BaseModel):
     salary_range: str | None = None
     contact_name: str | None = None
     notes: str | None = None
+
+    _validate_job_url = field_validator("job_url")(_validate_http_url)
 
 
 class ApplicationCreate(ApplicationBase):
@@ -39,6 +50,8 @@ class ApplicationUpdate(BaseModel):
     salary_range: str | None = None
     contact_name: str | None = None
     notes: str | None = None
+
+    _validate_job_url = field_validator("job_url")(_validate_http_url)
 
 
 class Application(ApplicationBase):

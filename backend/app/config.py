@@ -7,13 +7,16 @@ load_dotenv()
 
 
 class Settings:
-    supabase_url: str = os.environ["SUPABASE_URL"]
-    supabase_anon_key: str = os.environ["SUPABASE_ANON_KEY"]
-    cors_origins: list[str] = [
-        o.strip()
-        for o in os.environ.get("CORS_ORIGINS", "http://localhost:3000").split(",")
-        if o.strip()
-    ]
+    def __init__(self) -> None:
+        self.supabase_url: str = os.environ["SUPABASE_URL"]
+        self.supabase_anon_key: str = os.environ["SUPABASE_ANON_KEY"]
+        self.cors_origins: list[str] = [
+            o.strip()
+            for o in os.environ.get(
+                "CORS_ORIGINS", "http://localhost:3000"
+            ).split(",")
+            if o.strip()
+        ]
 
 
 @lru_cache
