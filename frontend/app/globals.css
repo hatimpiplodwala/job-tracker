@@ -58,7 +58,7 @@
   }
 
   .input-base {
-    @apply w-full rounded-md border border-border-subtle bg-bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600;
+    @apply w-full rounded-md border border-border-subtle bg-bg-surface px-3 py-2 text-base text-text-primary placeholder:text-text-muted focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600 sm:text-sm;
   }
 
   .card {

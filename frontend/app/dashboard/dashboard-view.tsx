@@ -35,6 +35,20 @@ export function DashboardView({ email }: DashboardViewProps) {
     load();
   }, [load]);
 
+  function handleSaved(app: Application) {
+    setApplications((prev) => {
+      const idx = prev.findIndex((a) => a.id === app.id);
+      if (idx === -1) return [app, ...prev];
+      const next = prev.slice();
+      next[idx] = app;
+      return next;
+    });
+  }
+
+  function handleDeleted(id: string) {
+    setApplications((prev) => prev.filter((a) => a.id !== id));
+  }
+
   function handleExport() {
     if (applications.length === 0) return;
     downloadCsv(applications);
@@ -45,8 +59,8 @@ export function DashboardView({ email }: DashboardViewProps) {
       <StatsSidebar email={email} applications={applications} />
 
       <main className="flex-1 overflow-x-auto">
-        <div className="mx-auto max-w-6xl px-8 py-8">
-          <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-8">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold tracking-tight">
                 Applications
@@ -55,15 +69,18 @@ export function DashboardView({ email }: DashboardViewProps) {
                 Track everywhere you&apos;ve applied.
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 sm:flex-shrink-0">
               <button
                 onClick={handleExport}
                 disabled={applications.length === 0}
-                className="btn-secondary"
+                className="btn-secondary flex-1 sm:flex-none"
               >
                 Export CSV
               </button>
-              <button onClick={() => setAddOpen(true)} className="btn-primary">
+              <button
+                onClick={() => setAddOpen(true)}
+                className="btn-primary flex-1 sm:flex-none"
+              >
                 + Add application
               </button>
             </div>
@@ -89,13 +106,15 @@ export function DashboardView({ email }: DashboardViewProps) {
       <ApplicationFormDialog
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        onSaved={load}
+        onSaved={handleSaved}
+        onDeleted={handleDeleted}
       />
 
       <ApplicationFormDialog
         open={editing !== null}
         onClose={() => setEditing(null)}
-        onSaved={load}
+        onSaved={handleSaved}
+        onDeleted={handleDeleted}
         application={editing ?? undefined}
       />
     </>

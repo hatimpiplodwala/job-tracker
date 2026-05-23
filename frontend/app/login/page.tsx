@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { BrandMark } from "@/components/brand";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,8 +34,9 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Job Tracker</h1>
+        <div className="mb-8 flex flex-col items-center text-center">
+          <BrandMark size="lg" />
+          <h1 className="mt-3 text-2xl font-semibold tracking-tight">Applyd</h1>
           <p className="mt-2 text-sm text-text-secondary">
             Sign in to your account
           </p>

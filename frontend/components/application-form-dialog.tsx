@@ -8,7 +8,8 @@ import { STATUSES, type Application, type ApplicationInput, type Status } from "
 interface ApplicationFormDialogProps {
   open: boolean;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (app: Application) => void;
+  onDeleted: (id: string) => void;
   application?: Application;
 }
 
@@ -46,6 +47,7 @@ export function ApplicationFormDialog({
   open,
   onClose,
   onSaved,
+  onDeleted,
   application,
 }: ApplicationFormDialogProps) {
   const isEdit = Boolean(application);
@@ -118,12 +120,11 @@ export function ApplicationFormDialog({
     setSaving(true);
     try {
       const payload = toPayload();
-      if (isEdit && application) {
-        await api.updateApplication(application.id, payload);
-      } else {
-        await api.createApplication(payload);
-      }
-      onSaved();
+      const saved =
+        isEdit && application
+          ? await api.updateApplication(application.id, payload)
+          : await api.createApplication(payload);
+      onSaved(saved);
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
@@ -142,7 +143,7 @@ export function ApplicationFormDialog({
     setError(null);
     try {
       await api.deleteApplication(application.id);
-      onSaved();
+      onDeleted(application.id);
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete failed");

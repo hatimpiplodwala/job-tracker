@@ -96,9 +96,9 @@ export function ApplicationsTable({
                   dir={sortDir}
                   onClick={() => toggleSort("date_applied")}
                 />
-                <th className="px-4 py-3 font-medium">Location</th>
-                <th className="px-4 py-3 font-medium">Salary</th>
-                <th className="px-4 py-3 font-medium">Link</th>
+                <th className="hidden px-4 py-3 font-medium lg:table-cell">Location</th>
+                <th className="hidden px-4 py-3 font-medium lg:table-cell">Salary</th>
+                <th className="hidden px-4 py-3 font-medium md:table-cell">Link</th>
                 <th className="px-4 py-3" aria-label="Actions" />
               </tr>
             </thead>
@@ -175,11 +175,13 @@ function Row({ app, onEdit }: { app: Application; onEdit: () => void }) {
       <td className="px-4 py-3 tabular-nums text-text-secondary">
         {formatDate(app.date_applied)}
       </td>
-      <td className="px-4 py-3 text-text-secondary">{app.location ?? "—"}</td>
-      <td className="px-4 py-3 text-text-secondary">
+      <td className="hidden px-4 py-3 text-text-secondary lg:table-cell">
+        {app.location ?? "—"}
+      </td>
+      <td className="hidden px-4 py-3 text-text-secondary lg:table-cell">
         {app.salary_range ?? "—"}
       </td>
-      <td className="px-4 py-3">
+      <td className="hidden px-4 py-3 md:table-cell">
         {app.job_url ? (
           <a
             href={app.job_url}
@@ -197,7 +199,7 @@ function Row({ app, onEdit }: { app: Application; onEdit: () => void }) {
         <button
           type="button"
           onClick={onEdit}
-          className="btn-ghost opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
+          className="btn-ghost md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:focus:opacity-100"
         >
           Edit
         </button>
@@ -207,12 +209,22 @@ function Row({ app, onEdit }: { app: Application; onEdit: () => void }) {
 }
 
 function SkeletonRows() {
+  const cells: { hide?: string }[] = [
+    {},
+    {},
+    {},
+    {},
+    { hide: "hidden lg:table-cell" },
+    { hide: "hidden lg:table-cell" },
+    { hide: "hidden md:table-cell" },
+    {},
+  ];
   return (
     <>
       {Array.from({ length: 5 }).map((_, i) => (
         <tr key={i} className="border-b border-border-subtle last:border-0">
-          {Array.from({ length: 8 }).map((__, j) => (
-            <td key={j} className="px-4 py-4">
+          {cells.map((c, j) => (
+            <td key={j} className={`px-4 py-4 ${c.hide ?? ""}`}>
               <div className="h-3 w-full max-w-[120px] animate-pulse rounded bg-bg-hover" />
             </td>
           ))}
