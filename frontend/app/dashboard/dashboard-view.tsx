@@ -1,19 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BarChart3, Columns3, Download, Plus, Table2 } from "lucide-react";
+import { BarChart3, Columns3, Download, Plus, ServerCrash, Table2 } from "lucide-react";
 import { StatsSidebar } from "@/components/stats-sidebar";
 import { ApplicationsTable } from "@/components/applications-table";
 import { ApplicationFormDialog } from "@/components/application-form-dialog";
 import { KanbanBoard } from "@/components/kanban-board";
 import { AnalyticsView } from "@/components/analytics-view";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
 import { downloadCsv } from "@/lib/csv";
 import type { Application } from "@/lib/types";
 
 type View = "table" | "kanban" | "analytics";
+
+const MAX_LOAD_RETRIES = 5;
 
 interface DashboardViewProps {
   email: string;
@@ -22,6 +25,7 @@ interface DashboardViewProps {
 export function DashboardView({ email }: DashboardViewProps) {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<Application | null>(null);
   const [view, setView] = useState<View>("table");
@@ -35,7 +39,11 @@ export function DashboardView({ email }: DashboardViewProps) {
       setLoading(false);
     } catch {
       attemptRef.current += 1;
-      // Exponential backoff, capped at 30s. Retry silently — no UI noise.
+      if (attemptRef.current >= MAX_LOAD_RETRIES) {
+        setLoading(false);
+        setLoadError(true);
+        return;
+      }
       const delay = Math.min(30_000, 1_000 * 2 ** Math.min(attemptRef.current, 5));
       setTimeout(load, delay);
     }
@@ -44,6 +52,13 @@ export function DashboardView({ email }: DashboardViewProps) {
   useEffect(() => {
     load();
   }, [load]);
+
+  function handleRetry() {
+    attemptRef.current = 0;
+    setLoadError(false);
+    setLoading(true);
+    load();
+  }
 
   function handleSaved(app: Application) {
     setApplications((prev) => {
@@ -122,21 +137,21 @@ export function DashboardView({ email }: DashboardViewProps) {
           </Tabs>
 
           <div key={view} className="animate-fade-in">
-            {view === "table" && (
+            {loadError ? (
+              <LoadError onRetry={handleRetry} />
+            ) : view === "table" ? (
               <ApplicationsTable
                 applications={applications}
                 loading={loading}
                 onEdit={setEditing}
               />
-            )}
-            {view === "kanban" && (
+            ) : view === "kanban" ? (
               <KanbanBoard
                 applications={applications}
                 onEdit={setEditing}
                 onSaved={handleSaved}
               />
-            )}
-            {view === "analytics" && (
+            ) : (
               <AnalyticsView applications={applications} />
             )}
           </div>
@@ -158,5 +173,26 @@ export function DashboardView({ email }: DashboardViewProps) {
         application={editing ?? undefined}
       />
     </>
+  );
+}
+
+function LoadError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <Card className="flex flex-col items-center gap-3 px-4 py-16 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface-sunken text-ink-soft">
+        <ServerCrash className="h-5 w-5" />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-foreground">
+          Couldn&apos;t load applications
+        </p>
+        <p className="mt-1 text-xs text-ink-soft">
+          The server may be unavailable. Check your connection and try again.
+        </p>
+      </div>
+      <Button variant="secondary" size="sm" onClick={onRetry}>
+        Retry
+      </Button>
+    </Card>
   );
 }

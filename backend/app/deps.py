@@ -1,11 +1,15 @@
 import hashlib
+import logging
 import time
 from dataclasses import dataclass
 from threading import Lock
 
 from fastapi import Depends, Header, HTTPException, status
+from gotrue.errors import AuthApiError
 
 from app.supabase_client import get_user_client
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -70,10 +74,16 @@ def get_current_user(
     client = get_user_client(token)
     try:
         result = client.auth.get_user(token)
-    except Exception as exc:
+    except AuthApiError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
+        ) from exc
+    except Exception as exc:
+        logger.exception("Unexpected error during token validation: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Authentication service error",
         ) from exc
 
     user = getattr(result, "user", None)

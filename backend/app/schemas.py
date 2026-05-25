@@ -25,13 +25,13 @@ def _validate_http_url(value: str | None) -> str | None:
 class ApplicationBase(BaseModel):
     company: str = Field(min_length=1, max_length=200)
     role: str = Field(min_length=1, max_length=200)
-    location: str | None = None
+    location: str | None = Field(default=None, max_length=200)
     status: Status = "Applied"
     date_applied: date
     job_url: str | None = None
-    salary_range: str | None = None
-    contact_name: str | None = None
-    notes: str | None = None
+    salary_range: str | None = Field(default=None, max_length=100)
+    contact_name: str | None = Field(default=None, max_length=200)
+    notes: str | None = Field(default=None, max_length=5000)
     follow_up_date: date | None = None
 
     _validate_job_url = field_validator("job_url")(_validate_http_url)
@@ -44,13 +44,13 @@ class ApplicationCreate(ApplicationBase):
 class ApplicationUpdate(BaseModel):
     company: str | None = Field(default=None, min_length=1, max_length=200)
     role: str | None = Field(default=None, min_length=1, max_length=200)
-    location: str | None = None
+    location: str | None = Field(default=None, max_length=200)
     status: Status | None = None
     date_applied: date | None = None
     job_url: str | None = None
-    salary_range: str | None = None
-    contact_name: str | None = None
-    notes: str | None = None
+    salary_range: str | None = Field(default=None, max_length=100)
+    contact_name: str | None = Field(default=None, max_length=200)
+    notes: str | None = Field(default=None, max_length=5000)
     follow_up_date: date | None = None
 
     _validate_job_url = field_validator("job_url")(_validate_http_url)

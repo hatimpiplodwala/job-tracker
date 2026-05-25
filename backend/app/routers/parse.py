@@ -5,17 +5,18 @@ import json
 import logging
 import re
 import socket
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import httpx
 from bs4 import BeautifulSoup
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from google import genai
 from google.genai import types as genai_types
 from pydantic import BaseModel, Field, model_validator
 
 from app.config import get_settings
 from app.deps import get_current_user
+from app.limiter import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +82,32 @@ def _is_public_address(host: str) -> bool:
     return True
 
 
+def _check_redirect_target(response: httpx.Response) -> None:
+    """Event hook: re-validate each redirect Location against the SSRF guard.
+
+    follow_redirects=True alone only checks the original URL. A public URL
+    could redirect to 169.254.169.254 (AWS metadata) or an RFC-1918 address,
+    bypassing _is_public_address(). This hook fires before httpx follows each
+    hop so we can abort the chain early.
+    """
+    if not response.is_redirect:
+        return
+    location = response.headers.get("location", "")
+    if not location:
+        return
+    absolute = urljoin(str(response.url), location)
+    parsed = urlparse(absolute)
+    if parsed.scheme not in ("http", "https"):
+        raise HTTPException(
+            status_code=400, detail="Redirect to non-HTTP URL blocked"
+        )
+    if not parsed.hostname or not _is_public_address(parsed.hostname):
+        raise HTTPException(
+            status_code=400,
+            detail="URL redirects to a non-public address",
+        )
+
+
 def _validate_url(url: str) -> str:
     parsed = urlparse(url.strip())
     if parsed.scheme not in ("http", "https"):
@@ -97,36 +124,37 @@ def _validate_url(url: str) -> str:
     return parsed.geturl()
 
 
-def _fetch_text(url: str) -> str:
-    headers = {
-        # Some job boards block default httpx UA outright.
-        "User-Agent": (
-            "Mozilla/5.0 (compatible; Applyd/1.0; +https://applyd.app)"
-        ),
+# Module-level client reuses TCP connections across requests (connection pooling).
+# event_hooks re-validates each redirect target against the SSRF guard.
+_http_client = httpx.Client(
+    timeout=FETCH_TIMEOUT_SECONDS,
+    follow_redirects=True,
+    headers={
+        "User-Agent": "Mozilla/5.0 (compatible; Applyd/1.0; +https://applyd.app)",
         "Accept": "text/html,application/xhtml+xml",
-    }
+    },
+    event_hooks={"response": [_check_redirect_target]},
+)
+
+
+def _fetch_text(url: str) -> str:
     try:
-        with httpx.Client(
-            timeout=FETCH_TIMEOUT_SECONDS,
-            follow_redirects=True,
-            headers=headers,
-        ) as client:
-            with client.stream("GET", url) as resp:
-                resp.raise_for_status()
-                ctype = resp.headers.get("content-type", "")
-                if "html" not in ctype.lower() and "text" not in ctype.lower():
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Unsupported content-type: {ctype}",
-                    )
-                chunks: list[bytes] = []
-                total = 0
-                for chunk in resp.iter_bytes():
-                    total += len(chunk)
-                    if total > MAX_BYTES:
-                        break
-                    chunks.append(chunk)
-                raw = b"".join(chunks)
+        with _http_client.stream("GET", url) as resp:
+            resp.raise_for_status()
+            ctype = resp.headers.get("content-type", "")
+            if "html" not in ctype.lower() and "text" not in ctype.lower():
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported content-type: {ctype}",
+                )
+            chunks: list[bytes] = []
+            total = 0
+            for chunk in resp.iter_bytes():
+                total += len(chunk)
+                if total > MAX_BYTES:
+                    break
+                chunks.append(chunk)
+            raw = b"".join(chunks)
     except httpx.HTTPStatusError as exc:
         code = exc.response.status_code
         if code in (401, 403, 429):
@@ -224,7 +252,9 @@ def _coerce(value) -> str | None:
 
 
 @router.post("/parse-url", response_model=ParseUrlResponse)
+@limiter.limit("10/minute")
 def parse(
+    request: Request,
     payload: ParseRequest,
     _user=Depends(get_current_user),
 ) -> ParseUrlResponse:
@@ -235,6 +265,11 @@ def parse(
             detail="AI parsing is not configured on this server",
         )
 
+    logger.info(
+        "parse-url user=%s source=%s",
+        _user.id,
+        payload.url or "(pasted text)",
+    )
     if payload.url:
         safe_url = _validate_url(payload.url)
         page_text = _fetch_text(safe_url)

@@ -16,6 +16,7 @@ import { FilterBar, type StatusFilter } from "@/components/filter-bar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { Application, Status } from "@/lib/types";
+import { daysUntil } from "@/lib/utils";
 
 interface ApplicationsTableProps {
   applications: Application[];
@@ -200,7 +201,7 @@ function Row({ app, onEdit }: { app: Application; onEdit: () => void }) {
         {app.salary_range ?? "—"}
       </td>
       <td className="hidden px-4 py-3 md:table-cell">
-        {app.job_url ? (
+        {app.job_url && /^https?:\/\//i.test(app.job_url) ? (
           <a
             href={app.job_url}
             target="_blank"
@@ -314,9 +315,3 @@ function FollowUpBadge({ date }: { date: string }) {
   );
 }
 
-function daysUntil(iso: string): number {
-  const target = new Date(iso + "T00:00:00");
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Math.round((target.getTime() - today.getTime()) / 86_400_000);
-}

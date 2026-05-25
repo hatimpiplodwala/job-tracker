@@ -17,6 +17,7 @@ import { AlertCircle, Calendar, MapPin, MoveRight } from "lucide-react";
 import { StatusDot } from "@/components/status-badge";
 import { api } from "@/lib/api";
 import { STATUSES, type Application, type Status } from "@/lib/types";
+import { daysUntil } from "@/lib/utils";
 
 interface KanbanBoardProps {
   applications: Application[];
@@ -233,9 +234,3 @@ function CardFollowUp({ date }: { date: string }) {
   );
 }
 
-function daysUntil(iso: string): number {
-  const target = new Date(iso + "T00:00:00");
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Math.round((target.getTime() - today.getTime()) / 86_400_000);
-}

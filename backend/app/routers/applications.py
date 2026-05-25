@@ -1,6 +1,10 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.deps import get_db
+
+logger = logging.getLogger(__name__)
 from app.schemas import (
     Application,
     ApplicationCreate,
@@ -14,13 +18,18 @@ TABLE = "applications"
 
 
 @router.get("", response_model=list[Application])
-def list_applications(db=Depends(get_db)):
+def list_applications(
+    limit: int = Query(default=500, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+    db=Depends(get_db),
+):
     client, user = db
     res = (
         client.table(TABLE)
         .select("*")
         .eq("user_id", user.id)
         .order("date_applied", desc=True)
+        .range(offset, offset + limit - 1)
         .execute()
     )
     return res.data or []
@@ -34,6 +43,7 @@ def create_application(payload: ApplicationCreate, db=Depends(get_db)):
     res = client.table(TABLE).insert(body).execute()
     if not res.data:
         raise HTTPException(status_code=500, detail="Failed to create application")
+    logger.info("create app=%s user=%s", res.data[0]["id"], user.id)
     return res.data[0]
 
 
@@ -55,6 +65,7 @@ def update_application(
     )
     if not res.data:
         raise HTTPException(status_code=404, detail="Application not found")
+    logger.info("update app=%s user=%s fields=%s", app_id, user.id, sorted(body.keys()))
     return res.data[0]
 
 
@@ -70,6 +81,7 @@ def delete_application(app_id: str, db=Depends(get_db)):
     )
     if not res.data:
         raise HTTPException(status_code=404, detail="Application not found")
+    logger.info("delete app=%s user=%s", app_id, user.id)
     return None
 
 
