@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { BarChart3, LineChart, Target, TrendingUp } from "lucide-react";
+import { BarChart3, LineChart, Target } from "lucide-react";
 import { StatusDot } from "@/components/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { STATUSES, type Application, type Status } from "@/lib/types";
@@ -9,17 +9,6 @@ import { STATUSES, type Application, type Status } from "@/lib/types";
 interface AnalyticsViewProps {
   applications: Application[];
 }
-
-const PIPELINE: Status[] = ["Applied", "Phone Screen", "Interview", "Offer"];
-
-const STAGE_ORDER: Record<Status, number> = {
-  Applied: 0,
-  "Phone Screen": 1,
-  Interview: 2,
-  Offer: 3,
-  Rejected: -1,
-  Withdrawn: -1,
-};
 
 const STATUS_CARD: Record<Status, string> = {
   Applied: "bg-status-applied-bg border-status-applied-border",
@@ -48,31 +37,6 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
     };
     for (const app of applications) c[app.status]++;
     return c;
-  }, [applications]);
-
-  const funnel = useMemo(() => {
-    const totals: Record<string, number> = {
-      Applied: 0,
-      "Phone Screen": 0,
-      Interview: 0,
-      Offer: 0,
-    };
-    for (const app of applications) {
-      const ord = STAGE_ORDER[app.status];
-      // Rejected/Withdrawn (ord < 0) still applied at minimum — count them
-      // in Applied. We don't know if they reached later stages.
-      const reachedTo = ord < 0 ? 0 : ord;
-      for (let i = 0; i <= reachedTo; i++) {
-        totals[PIPELINE[i]]++;
-      }
-    }
-    return PIPELINE.map((stage, i) => {
-      const count = totals[stage];
-      const prevStage = i === 0 ? null : PIPELINE[i - 1];
-      const prev = prevStage ? totals[prevStage] : count;
-      const conversion = prev > 0 ? Math.round((count / prev) * 100) : 0;
-      return { stage, count, conversion, prevStage };
-    });
   }, [applications]);
 
   const outcomes = useMemo(() => {
@@ -151,7 +115,6 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
   }, [applications]);
 
   const monthlyMax = Math.max(1, ...monthly.map((m) => m.count));
-  const funnelMax = Math.max(1, ...funnel.map((f) => f.count));
 
   if (applications.length === 0) {
     return (
@@ -190,126 +153,66 @@ export function AnalyticsView({ applications }: AnalyticsViewProps) {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardContent className="p-5">
-            <header className="mb-4 flex items-baseline justify-between gap-3">
-              <h3 className="inline-flex items-center gap-2 font-serif text-base font-semibold text-foreground">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                Pipeline
-              </h3>
-              <p className="text-[11px] text-ink-soft">
-                Active apps by stage reached
-              </p>
-            </header>
-            <div className="space-y-3">
-              {funnel.map((row) => {
-                const width = (row.count / funnelMax) * 100;
-                return (
-                  <div key={row.stage}>
-                    <div className="mb-1 flex items-baseline justify-between text-xs">
-                      <span className="font-medium text-foreground">
-                        {row.stage}
-                      </span>
-                      <span className="tabular-nums text-ink-soft">
-                        {row.count}
-                        {row.prevStage && row.count > 0 && (
-                          <span className="ml-2 text-ink-mid">
-                            ({row.conversion}%)
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                    <div
-                      className="relative h-6 overflow-hidden rounded-md bg-surface-sunken shadow-inner-paper"
-                      title={
-                        row.prevStage
-                          ? `${row.stage}: ${row.count} — ${row.conversion}% from ${row.prevStage}`
-                          : `${row.stage}: ${row.count}`
-                      }
-                    >
-                      {row.count > 0 && (
-                        <div
-                          className="relative h-full overflow-hidden rounded-md bg-gloss-forest transition-all duration-500"
-                          style={{ width: `${Math.max(width, 3)}%` }}
-                        >
-                          <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <p className="mt-4 text-[11px] text-ink-soft">
-              Applied counts every application. Later stages count apps that
-              reached them and weren&apos;t rejected or withdrawn — see{" "}
-              <span className="text-ink-mid">Outcomes</span> for those.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-5">
-            <header className="mb-4 flex items-baseline justify-between gap-3">
-              <h3 className="inline-flex items-center gap-2 font-serif text-base font-semibold text-foreground">
-                <Target className="h-4 w-4 text-status-offer-fg" />
-                Outcomes
-              </h3>
-              <span
-                className="text-[11px] text-ink-soft"
-                title="Offers ÷ total applications"
-              >
-                Offer rate{" "}
-                <span className="font-semibold tabular-nums text-status-offer-fg">
-                  {outcomes.offerRate}%
-                </span>
+      <Card>
+        <CardContent className="p-5">
+          <header className="mb-4 flex items-baseline justify-between gap-3">
+            <h3 className="inline-flex items-center gap-2 font-serif text-base font-semibold text-foreground">
+              <Target className="h-4 w-4 text-status-offer-fg" />
+              Outcomes
+            </h3>
+            <span
+              className="text-[11px] text-ink-soft"
+              title="Offers ÷ total applications"
+            >
+              Offer rate{" "}
+              <span className="font-semibold tabular-nums text-status-offer-fg">
+                {outcomes.offerRate}%
               </span>
-            </header>
-            <ul className="space-y-2">
-              {outcomes.rows.map((row, i) => {
-                const isLast = i === outcomes.rows.length - 1;
-                const width = outcomes.total > 0 ? (row.count / outcomes.total) * 100 : 0;
-                return (
-                  <li
-                    key={row.key}
-                    className={isLast ? "border-t border-border pt-3" : ""}
+            </span>
+          </header>
+          <ul className="space-y-2">
+            {outcomes.rows.map((row, i) => {
+              const isLast = i === outcomes.rows.length - 1;
+              const width = outcomes.total > 0 ? (row.count / outcomes.total) * 100 : 0;
+              return (
+                <li
+                  key={row.key}
+                  className={isLast ? "border-t border-border pt-3" : ""}
+                >
+                  <div className="mb-1 flex items-baseline justify-between text-xs">
+                    <span className="inline-flex items-center gap-2 font-medium text-foreground">
+                      <span className={`h-2 w-2 rounded-full ${row.dot}`} />
+                      {row.label}
+                    </span>
+                    <span className="tabular-nums text-ink-soft">
+                      <span className={`font-semibold ${row.accent}`}>
+                        {row.count}
+                      </span>
+                      <span className="ml-2 text-ink-mid">
+                        ({row.pct}%)
+                      </span>
+                    </span>
+                  </div>
+                  <div
+                    className="relative h-1.5 overflow-hidden rounded-full bg-surface-sunken shadow-inner-paper"
+                    title={`${row.label}: ${row.count} of ${outcomes.total} (${row.pct}%)`}
                   >
-                    <div className="mb-1 flex items-baseline justify-between text-xs">
-                      <span className="inline-flex items-center gap-2 font-medium text-foreground">
-                        <span className={`h-2 w-2 rounded-full ${row.dot}`} />
-                        {row.label}
-                      </span>
-                      <span className="tabular-nums text-ink-soft">
-                        <span className={`font-semibold ${row.accent}`}>
-                          {row.count}
-                        </span>
-                        <span className="ml-2 text-ink-mid">
-                          ({row.pct}%)
-                        </span>
-                      </span>
-                    </div>
-                    <div
-                      className="relative h-1.5 overflow-hidden rounded-full bg-surface-sunken shadow-inner-paper"
-                      title={`${row.label}: ${row.count} of ${outcomes.total} (${row.pct}%)`}
-                    >
-                      {row.count > 0 && (
-                        <div
-                          className={`h-full rounded-full ${row.dot} transition-all duration-500`}
-                          style={{ width: `${Math.max(width, 2)}%` }}
-                        />
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-4 text-[11px] text-ink-soft">
-              Percentages of total applications ({outcomes.total}).
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+                    {row.count > 0 && (
+                      <div
+                        className={`h-full rounded-full ${row.dot} transition-all duration-500`}
+                        style={{ width: `${Math.max(width, 2)}%` }}
+                      />
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-4 text-[11px] text-ink-soft">
+            Percentages of total applications ({outcomes.total}).
+          </p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="p-5">

@@ -27,15 +27,6 @@ interface ApplicationsTableProps {
 type SortKey = "date_applied" | "company" | "role" | "status";
 type SortDir = "asc" | "desc";
 
-const STATUS_ROW_ACCENT: Record<Status, string> = {
-  Applied: "before:bg-status-applied-dot",
-  "Phone Screen": "before:bg-status-screen-dot",
-  Interview: "before:bg-status-interview-dot",
-  Offer: "before:bg-status-offer-dot",
-  Rejected: "before:bg-status-rejected-dot",
-  Withdrawn: "before:bg-status-withdrawn-dot",
-};
-
 export function ApplicationsTable({
   applications,
   loading,
@@ -180,10 +171,8 @@ function SortableHeader({
 
 function Row({ app, onEdit }: { app: Application; onEdit: () => void }) {
   return (
-    <tr
-      className={`group relative border-b border-border/60 transition-colors last:border-0 hover:bg-surface-sunken/40 before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:opacity-70 before:transition-opacity hover:before:opacity-100 ${STATUS_ROW_ACCENT[app.status]}`}
-    >
-      <td className="px-4 py-3 pl-5 font-medium text-foreground">
+    <tr className="group border-b border-border/60 transition-colors last:border-0 hover:bg-surface-sunken/40">
+      <td className="px-4 py-3 font-medium text-foreground">
         <div>{app.company}</div>
         {app.follow_up_date && <FollowUpBadge date={app.follow_up_date} />}
       </td>
